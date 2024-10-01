@@ -1,0 +1,29 @@
+:root {
+    --grid-rows: 30;
+    --grid-cols: 20;
+}
+
+body {
+    user-select: none;
+    text-align: center;
+    background-color: seagreen;
+}
+
+#grid-container {
+    border: solid 2px black;
+    display: grid;
+    justify-content: center;
+    grid-template-rows: repeat(var(--grid-rows), max-content);
+    grid-template-columns: repeat(var(--grid-cols), max-content);
+}
+
+#grid-height-input, #grid-width-input {
+    width: 40px;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    border: solid 1px black;
+    background-color: white;
+}
