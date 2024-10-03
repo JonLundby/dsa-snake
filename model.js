@@ -1,11 +1,10 @@
-import Grid from "./grid.js"
-import Queue from "./queue.js"
+import Grid from "./grid.js";
+import Queue from "./queue.js";
 
-export {init, createGrid, createQueue}
+export { init, createGrid, createQueue };
 
 function init() {
     console.log("model ok");
-    
 }
 
 // GRID
@@ -14,7 +13,6 @@ function createGrid(rows, cols, value) {
 }
 
 // QUEUE
-
 function createQueue() {
-    return new Queue()
+    return new Queue();
 }

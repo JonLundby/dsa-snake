@@ -10,14 +10,15 @@ body {
 }
 
 #grid-container {
-    border: solid 2px black;
     display: grid;
     justify-content: center;
     grid-template-rows: repeat(var(--grid-rows), max-content);
     grid-template-columns: repeat(var(--grid-cols), max-content);
+    margin: 12px;
 }
 
-#grid-height-input, #grid-width-input {
+#grid-height-input,
+#grid-width-input {
     width: 40px;
 }
 
@@ -26,4 +27,12 @@ body {
     height: 20px;
     border: solid 1px black;
     background-color: white;
+}
+
+.food {
+    background-color: salmon;
+}
+
+.snake {
+    background-color: green;
 }

@@ -81,9 +81,9 @@ export default class Queue {
                 count++;
             }
 
-            return current;
+            return current ? current.data : null;
         } else {
-            return;
+            return null;
         }
     }
 }
