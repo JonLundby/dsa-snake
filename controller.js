@@ -7,8 +7,7 @@ let gameGrid;
 let isFoodPresent = false;
 let snake;
 let direction = "left";
-let foodLocationRow;
-let foodLocationCol;
+let foodLocation = { row: 0, col: 0 };
 let isGameOver = false;
 
 init();
@@ -32,36 +31,38 @@ function init() {
 
     document.addEventListener("keydown", keyPress);
 
+    // game should not be over before it starts or when it resets
     isGameOver = false;
-    console.log("gameover when init is: ", isGameOver);
 }
 
 function startGame() {
     document.querySelector("#start-btn").disabled = true;
 
-    // create grid
+    // create model & view grid
     gameGrid = model.createGrid(GRID_HEIGHT, GRID_WIDTH, 0);
     view.createVisualGrid(GRID_HEIGHT, GRID_WIDTH);
-    console.table(gameGrid.grid);
 
     // create initial snake/queue
     snake = model.createQueue();
     snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) + 2 });
     snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) + 1 });
     snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) });
-    // console.log(snake);
 
+    // scroll to bottom of page to see the gamegrid
     window.scrollTo({
         top: document.body.scrollHeight,
         behavior: "smooth",
     });
 
+    // game should not be over when it starts
     isGameOver = false;
 
+    // first tick
     tick();
 }
 
 function tick() {
+    // if game is over then tick should not run
     if (isGameOver) return;
 
     setTimeout(tick, 120);
@@ -71,10 +72,7 @@ function tick() {
         gameGrid.set(part.row, part.col, 0);
     }
 
-    // set the head of the snake to be the tail of the snake queue
-    // in a normal perception of a queue, after the head/first in queue is removed, the rest of the line moves up...
-    // but in this case the rest of the line stands still and the head(of the visual snake) is re-added to the end of the line
-    // thus the snakes direction can be percieved as opposite of the queue
+    // the visual snake head is the tail of the snake queue
     const snakeHead = {
         row: snake.tail.data.row,
         col: snake.tail.data.col,
@@ -120,7 +118,7 @@ function tick() {
     snake.enqueue(snakeHead); // add the new head to the tail of the queue/snake
     snake.dequeue(); // remove the head(tail of the visual snake) of the queue/snake
 
-    checkFoodCollision();
+    checkFoodCollision(snakeHead);
 
     // re-add the snake
     for (const part of snake) {
@@ -130,7 +128,6 @@ function tick() {
     addFood();
 
     view.updateVisualGrid(gameGrid);
-    // console.table(gameGrid.grid)
 }
 
 function keyPress(e) {
@@ -164,30 +161,37 @@ function keyPress(e) {
 }
 
 function addFood() {
+    // if no food is present then place food
     if (!isFoodPresent) {
-        foodLocationRow = Math.floor(Math.random() * GRID_HEIGHT);
-        foodLocationCol = Math.floor(Math.random() * GRID_WIDTH);
+        foodLocation = {
+            row: Math.floor(Math.random() * GRID_HEIGHT),
+            col: Math.floor(Math.random() * GRID_WIDTH),
+        };
 
-        // retriving the value of the new food location
-        const foodLocationValue = gameGrid.get(foodLocationRow, foodLocationRow);
+        // retriving the model grid value of the new food location
+        const foodLocationValue = gameGrid.get(foodLocation.row, foodLocation.col);
 
         // if the new food location does not have the value of 1 then the location is not part of the snake and food can be placed
         if (foodLocationValue != 1) {
-            gameGrid.set(foodLocationRow, foodLocationCol, 2);
+            gameGrid.set(foodLocation.row, foodLocation.col, 2);
         }
+
+        console.table(gameGrid.grid);
+        view.updateVisualGrid(gameGrid);
 
         isFoodPresent = true;
     }
 }
 
-function checkFoodCollision() {
-    if (snake.tail.data.row === foodLocationRow && snake.tail.data.col === foodLocationCol) {
-        gameGrid.set(foodLocationRow, foodLocationCol, 0);
-        snake.enqueue({ row: foodLocationRow, col: foodLocationCol });
+function checkFoodCollision(snakeHead) {
+    // if snakeHead and foodLocation is the same then remove the food and add the snakeHead to the snake
+    if (snakeHead.row === foodLocation.row && snakeHead.col === foodLocation.col) {
+        gameGrid.set(foodLocation.row, foodLocation.col, 0);
+        snake.enqueue(foodLocation);
 
         setTimeout(() => {
             isFoodPresent = false;
-        }, 3000);
+        }, 1000);
     }
 }
 
