@@ -36,3 +36,24 @@ body {
 .snake {
     background-color: green;
 }
+
+.hidden {
+    display: none;
+}
+
+#game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(178, 187, 194);
+    width: 12em;
+    height: 3em;
+    z-index: 100;
+    font-size: 2em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

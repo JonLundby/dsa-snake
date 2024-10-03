@@ -9,6 +9,7 @@ let snake;
 let direction = "left";
 let foodLocationRow;
 let foodLocationCol;
+let isGameOver = false;
 
 init();
 
@@ -16,21 +17,28 @@ function init() {
     // set grid size
     GRID_HEIGHT = document.querySelector("#grid-height-input").value;
     GRID_WIDTH = document.querySelector("#grid-width-input").value;
-    
+
     //create initial grid
     view.createVisualGrid(GRID_HEIGHT, GRID_WIDTH);
 
     // add eventlisteners
     document.querySelector("#start-btn").addEventListener("click", startGame);
+    document.querySelector("#start-btn").disabled = false;
+    document.querySelector("#reset-btn").addEventListener("click", resetGame);
+    document.querySelector("#reset-btn").disabled = true;
 
     document.querySelector("#grid-height-input").addEventListener("change", resizeGrid);
     document.querySelector("#grid-width-input").addEventListener("change", resizeGrid);
 
     document.addEventListener("keydown", keyPress);
+
+    isGameOver = false;
+    console.log("gameover when init is: ", isGameOver);
 }
 
 function startGame() {
-    toggleControlPanel();
+    console.log("gameover when start is: ", isGameOver);
+    document.querySelector("#start-btn").disabled = true;
 
     // create grid
     gameGrid = model.createGrid(GRID_HEIGHT, GRID_WIDTH, 0);
@@ -39,9 +47,9 @@ function startGame() {
 
     // create initial snake/queue
     snake = model.createQueue();
-    snake.enqueue({ row: GRID_HEIGHT / 2, col: GRID_WIDTH / 2 + 2 });
-    snake.enqueue({ row: GRID_HEIGHT / 2, col: GRID_WIDTH / 2 + 1 });
-    snake.enqueue({ row: GRID_HEIGHT / 2, col: GRID_WIDTH / 2 });
+    snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) + 2 });
+    snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) + 1 });
+    snake.enqueue({ row: Math.floor(GRID_HEIGHT / 2), col: Math.floor(GRID_WIDTH / 2) });
     // console.log(snake);
 
     window.scrollTo({
@@ -53,23 +61,25 @@ function startGame() {
 }
 
 function tick() {
-    setTimeout(tick, 100);
+    if (isGameOver) return;
+
+    setTimeout(tick, 120);
 
     // remove the snake
     for (const part of snake) {
         gameGrid.set(part.row, part.col, 0);
-        // console.log(part);
     }
 
     // set the head of the snake to be the tail of the snake queue
     // in a normal perception of a queue, after the head/first in queue is removed, the rest of the line moves up...
     // but in this case the rest of the line stands still and the head(of the visual snake) is re-added to the end of the line
+    // thus the snakes direction can be percieved as opposite of the queue
     const snakeHead = {
         row: snake.tail.data.row,
         col: snake.tail.data.col,
     };
 
-    // string cases decides the player direction and movement
+    // string cases decides where the new snakeHead goes
     switch (direction) {
         case "left":
             snakeHead.col--;
@@ -99,17 +109,25 @@ function tick() {
             break;
     }
 
+    // check for self collision
+    for (const part of snake) {
+        if (snakeHead.row === part.row && snakeHead.col === part.col) {
+            gameOver();
+        }
+    }
+
     snake.enqueue(snakeHead); // add the new head to the tail of the queue/snake
-    checkFoodCollision();
     snake.dequeue(); // remove the head(tail of the visual snake) of the queue/snake
-    
+
+    checkFoodCollision();
+
     // re-add the snake
     for (const part of snake) {
         gameGrid.set(part.row, part.col, 1);
     }
-    
+
     addFood();
-    
+
     view.updateVisualGrid(gameGrid);
     // console.table(gameGrid.grid)
 }
@@ -149,7 +167,13 @@ function addFood() {
         foodLocationRow = Math.floor(Math.random() * GRID_HEIGHT);
         foodLocationCol = Math.floor(Math.random() * GRID_WIDTH);
 
-        gameGrid.set(foodLocationRow, foodLocationCol, 2);
+        // retriving the value of the new food location
+        const foodLocationValue = gameGrid.get(foodLocationRow, foodLocationRow);
+
+        // if the new food location does not have the value of 1 then the location is not part of the snake and food can be placed
+        if (foodLocationValue != 1) {
+            gameGrid.set(foodLocationRow, foodLocationCol, 2);
+        }
 
         isFoodPresent = true;
     }
@@ -159,10 +183,10 @@ function checkFoodCollision() {
     if (snake.tail.data.row === foodLocationRow && snake.tail.data.col === foodLocationCol) {
         gameGrid.set(foodLocationRow, foodLocationCol, 0);
         snake.enqueue({ row: foodLocationRow, col: foodLocationCol });
-        
+
         setTimeout(() => {
             isFoodPresent = false;
-        }, 3000)
+        }, 3000);
     }
 }
 
@@ -171,16 +195,17 @@ function resizeGrid() {
     GRID_WIDTH = document.querySelector("#grid-width-input").value;
 }
 
-function toggleControlPanel() {
-    if (!document.querySelector("#start-btn").disabled) {
-      document.querySelector("#start-btn").disabled = true;
+function gameOver() {
+    console.log("game over called");
 
-      document.querySelector("#grid-height-input").disabled = true;  
-      document.querySelector("#grid-width-input").disabled = true;  
-    } else {
-      document.querySelector("#start-btn").disabled = false;
+    isGameOver = true;
+    // document.querySelector("#game-over").classList.remove("hidden");
+    document.querySelector("#reset-btn").disabled = false;
+}
 
-      document.querySelector("#grid-height-input").disabled = false;  
-      document.querySelector("#grid-width-input").disabled = false;  
-    }
+function resetGame() {
+    snake = {}
+    isGameOver = false;
+    document.querySelector("#start-btn").disabled = false;
+    document.querySelector("#reset-btn").disabled = true;
 }
