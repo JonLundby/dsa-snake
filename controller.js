@@ -26,17 +26,23 @@ function init() {
     document.querySelector("#reset-btn").addEventListener("click", resetGame);
     document.querySelector("#reset-btn").disabled = true;
 
+    document.querySelector("#grid-height-input").disabled = false;
+    document.querySelector("#grid-width-input").disabled = false;
     document.querySelector("#grid-height-input").addEventListener("change", resizeGrid);
     document.querySelector("#grid-width-input").addEventListener("change", resizeGrid);
 
     document.addEventListener("keydown", keyPress);
 
-    // game should not be over before it starts or when it resets
+    // reset game
     isGameOver = false;
+    isFoodPresent = false;
+    direction = "left"; // so that the snake does not collide with itself at game start
 }
 
 function startGame() {
     document.querySelector("#start-btn").disabled = true;
+    document.querySelector("#grid-height-input").disabled = true;
+    document.querySelector("#grid-width-input").disabled = true;
 
     // create model & view grid
     gameGrid = model.createGrid(GRID_HEIGHT, GRID_WIDTH, 0);
@@ -53,9 +59,6 @@ function startGame() {
         top: document.body.scrollHeight,
         behavior: "smooth",
     });
-
-    // game should not be over when it starts
-    isGameOver = false;
 
     // first tick
     tick();
@@ -119,14 +122,14 @@ function tick() {
     snake.dequeue(); // remove the head(tail of the visual snake) of the queue/snake
 
     checkFoodCollision(snakeHead);
-
+    
     // re-add the snake
     for (const part of snake) {
         gameGrid.set(part.row, part.col, 1);
     }
-
+    
     addFood();
-
+    
     view.updateVisualGrid(gameGrid);
 }
 
@@ -161,22 +164,26 @@ function keyPress(e) {
 }
 
 function addFood() {
-    // if no food is present then place food
+    // if no food is present then find a location for the food
     if (!isFoodPresent) {
         foodLocation = {
             row: Math.floor(Math.random() * GRID_HEIGHT),
             col: Math.floor(Math.random() * GRID_WIDTH),
         };
 
-        // retriving the model grid value of the new food location
+        // retriving value of the new food location from the grid(model)
         const foodLocationValue = gameGrid.get(foodLocation.row, foodLocation.col);
+
+        console.log("Attempting to place food at: ", foodLocation, "Current value at location: ", foodLocationValue);
 
         // if the new food location does not have the value of 1 then the location is not part of the snake and food can be placed
         if (foodLocationValue != 1) {
+            console.log("food placed at: ", foodLocation, foodLocationValue);
             gameGrid.set(foodLocation.row, foodLocation.col, 2);
+        } else {
+            console.log("food placement failed at: ", foodLocation, foodLocationValue);
         }
 
-        console.table(gameGrid.grid);
         view.updateVisualGrid(gameGrid);
 
         isFoodPresent = true;
@@ -188,10 +195,11 @@ function checkFoodCollision(snakeHead) {
     if (snakeHead.row === foodLocation.row && snakeHead.col === foodLocation.col) {
         gameGrid.set(foodLocation.row, foodLocation.col, 0);
         snake.enqueue(foodLocation);
+        // console.log("food eaten");
 
         setTimeout(() => {
             isFoodPresent = false;
-        }, 1000);
+        }, 2000);
     }
 }
 
