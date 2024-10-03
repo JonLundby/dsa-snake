@@ -37,7 +37,6 @@ function init() {
 }
 
 function startGame() {
-    console.log("gameover when start is: ", isGameOver);
     document.querySelector("#start-btn").disabled = true;
 
     // create grid
@@ -56,6 +55,8 @@ function startGame() {
         top: document.body.scrollHeight,
         behavior: "smooth",
     });
+
+    isGameOver = false;
 
     tick();
 }
@@ -196,16 +197,14 @@ function resizeGrid() {
 }
 
 function gameOver() {
-    console.log("game over called");
-
     isGameOver = true;
-    // document.querySelector("#game-over").classList.remove("hidden");
+    document.querySelector("#game-over").classList.remove("hidden");
     document.querySelector("#reset-btn").disabled = false;
 }
 
 function resetGame() {
-    snake = {}
-    isGameOver = false;
+    document.querySelector("#game-over").classList.add("hidden");
     document.querySelector("#start-btn").disabled = false;
     document.querySelector("#reset-btn").disabled = true;
+    init();
 }

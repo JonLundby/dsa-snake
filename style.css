@@ -46,10 +46,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(178, 187, 194);
+    background-color: rgb(134, 159, 135);
     width: 12em;
     height: 3em;
     z-index: 100;
