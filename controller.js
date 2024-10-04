@@ -193,7 +193,9 @@ function checkFoodCollision(snakeHead) {
     // if the snakeHead value is 2 then the snake has collided with the food
     if (snakeHeadValue === 2) {
         gameGrid.set(foodLocation.row, foodLocation.col, 0); // reset the food location value to 0
-        snake.enqueue(foodLocation); // add the food location to the snake
+        snake.enqueue(foodLocation);
+
+        view.updateVisualGrid(gameGrid);
         
         // reset isFoodPresent after 2.5 seconds so that addFood can be called again in the tick
         setTimeout(() => {

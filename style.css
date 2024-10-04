@@ -6,7 +6,7 @@
 body {
     user-select: none;
     text-align: center;
-    background-color: seagreen;
+    background-color: rgb(130, 134, 142);
 }
 
 #grid-container {
@@ -31,6 +31,19 @@ body {
 
 .food {
     background-color: salmon;
+    animation: glow 1s infinite;
+}
+
+@keyframes glow {
+    0% {
+        background-color: rgb(188, 197, 10);
+    }
+    50% {
+        background-color: rgb(205, 92, 23);
+    }
+    100% {
+        background-color: rgb(188, 197, 10);
+    }
 }
 
 .snake {
